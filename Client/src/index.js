@@ -1,7 +1,11 @@
+
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import WinnerModal from './modal.js'
+
+/*
+
 
 
 function Square(props) {
@@ -122,6 +126,7 @@ function Game() {
   
 }
 
+*/
 
 // ========================================
 
