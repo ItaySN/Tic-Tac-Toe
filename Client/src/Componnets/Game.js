@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Board from './Board';
 import './index.css';
 import ReactDOM from 'react-dom';
-// import WinnerModal from './modal.js';
+import WriteRecord from  './modal.js';
+import axios from 'axios';
 
 function Game() {
     const [state, setState] = useState({
@@ -12,12 +13,32 @@ function Game() {
           }
         ],
         stepNumber: 0,
-        xIsNext: true
+        xIsNext: true,
       });
-    
-  
+      const [isWinner,setWinner] = useState(false);
+      const [startTime,setStartTime] = useState();
+      const [duration,setDuration] = useState();
+      
+      const handleCloseWinner = (name) => {
+        
+      }
+
+      var TaskCreateDate = new Date();
+      var TaskCreateDateDisplay = TaskCreateDate.getFullYear() + "-" +
+          ("0" + (TaskCreateDate.getMonth()+1)).slice(-2) + "-" +
+          ("0" + TaskCreateDate.getDate()).slice(-2) + " " +
+          ("0" + TaskCreateDate.getHours()).slice(-2) + ":" +
+          ("0" + TaskCreateDate.getMinutes()).slice(-2) + ":" +
+          ("0" + TaskCreateDate.getSeconds()).slice(-2);
+
+
+
+
+
+
     function handleClick(i) {
       const history = state.history.slice(0, state.stepNumber + 1);
+      setStartTime(new Date());
       const current = history[history.length - 1];
       const squares = current.squares.slice();
       if (calculateWinner(squares) || squares[i]) {
@@ -52,15 +73,26 @@ function Game() {
         'Go to game start';
       return (
         <li key={move}>
-          <button onClick={() => jumpTo(move)}>{desc}</button>
+          <button onClick={() =>{ jumpTo(move); setWinner(false)}}>{desc}</button>
         </li>
       );
     });
+
+    useEffect(() => {
+      if(winner){
+        setWinner(true);
+
+      }
+    },[winner])
   
       let status;
       if (winner) {
         status = "The winner is : " + winner;
-  
+        setDuration((new Date()) - startTime)/1000;
+        
+        //setWinner(winner);
+
+        
       } else {
         status = "Next player: " + (state.xIsNext ? "X" : "O");
       }
@@ -75,6 +107,7 @@ function Game() {
           </div>
           <div className="game-info">
             <div>{status}</div>
+            {isWinner && <WriteRecord isWinner = {isWinner} setWinner ={setWinner}/>} 
             <ol>{moves}</ol>
           </div>
           
