@@ -8,37 +8,32 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 export default function WriteRecord(props) {
-  const [open, setOpen] = React.useState(false);
-  const [name,setName] = useState();
+  
+  const [Name,setName] = useState();
   
 
   const handleClickOpen = () => {
-    debugger;
-    setOpen(true);
+    props.setOpen(true);
   };
 
   const handleClose = () => {
-
-
-  }
-
-  const handleClose = () => {
     props.setWinner(false);
-    setOpen(false);
+    props.setOpen(false);
+    props.newGame();
   };
 
   useEffect(()=>{
     if(props.isWinner){
-      setOpen(true);
+      props.setOpen(true);
     }
-  },)
+  },[props.isWinner])
 
   return (
     
     <div>
        {props.isWinner && (
         
-      <Dialog open = {open} onClose={handleClose} aria-labelledby="form-dialog-title">
+      <Dialog open = {props.open} onClose={handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Write Your Details</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -58,7 +53,7 @@ export default function WriteRecord(props) {
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick = {() => props.handleCloseWinner(Name)} color="primary">
             Send
           </Button>
         </DialogActions>
