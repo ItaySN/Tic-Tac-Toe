@@ -4,6 +4,7 @@ import './index.css';
 import ReactDOM from 'react-dom';
 import WriteRecord from  './modal.js';
 import axios from 'axios';
+import './records.css'
 
 function Game() {
     const [state, setState] = useState({
@@ -17,28 +18,65 @@ function Game() {
       });
       const [isWinner,setWinner] = useState(false);
       const [startTime,setStartTime] = useState();
-      const [duration,setDuration] = useState();
+      const [open, setOpen] = React.useState(false);
+      const [records,setRecords] = useState([]);
       
-      const handleCloseWinner = (name) => {
+      
+      const dateToDisplay = (date) => {
+        let displayDate = date.getFullYear() + "-" +
+        ("0" + (date.getMonth()+1)).slice(-2) + "-" +
+        ("0" + date.getDate()).slice(-2) + " " +
+        ("0" + date.getHours()).slice(-2) + ":" +
+        ("0" + date.getMinutes()).slice(-2) + ":" +
+        ("0" + date.getSeconds()).slice(-2);
+        return displayDate;
+      }
+      
+      const handleCloseWinner = async (name) =>  {
+        let objRecord = {
+          name : name ,
+          duration : ((new Date() - startTime)/1000) ,
+          date : dateToDisplay(new Date())
+        }
         
+        await axios.post('/api/v1/post', objRecord);
+        setOpen(false);
+        newGame();
       }
 
-      var TaskCreateDate = new Date();
-      var TaskCreateDateDisplay = TaskCreateDate.getFullYear() + "-" +
-          ("0" + (TaskCreateDate.getMonth()+1)).slice(-2) + "-" +
-          ("0" + TaskCreateDate.getDate()).slice(-2) + " " +
-          ("0" + TaskCreateDate.getHours()).slice(-2) + ":" +
-          ("0" + TaskCreateDate.getMinutes()).slice(-2) + ":" +
-          ("0" + TaskCreateDate.getSeconds()).slice(-2);
-
-
-
-
+      const getRecords = async () =>{
+        let data = await axios.get('/api/v1/records');
+        let leaderboards = data.data.map((record,i) => {
+          return (<li>
+            <span>i</span>
+            <span>Name : {record.name}   </span>
+            <span>Duaration : {record.duration}  </span>
+            <span>Date: {record.date}</span> 
+          </li>)
+        })
+        setRecords(leaderboards);
+        
+      }
+    function newGame(){
+      setState({
+        history: [
+          {
+            squares: Array(9).fill(null)
+          }
+        ],
+        stepNumber: 0,
+        xIsNext: true,
+      })  
+      setWinner(false);
+    }  
 
 
     function handleClick(i) {
+      if(state.stepNumber === 0)
+      {
+        setStartTime(new Date());
+      }
       const history = state.history.slice(0, state.stepNumber + 1);
-      setStartTime(new Date());
       const current = history[history.length - 1];
       const squares = current.squares.slice();
       if (calculateWinner(squares) || squares[i]) {
@@ -81,14 +119,20 @@ function Game() {
     useEffect(() => {
       if(winner){
         setWinner(true);
-
       }
     },[winner])
+
+    useEffect(() => {
+      if(!open)
+      {
+        getRecords();
+      }
+    },[open])
+
   
       let status;
       if (winner) {
         status = "The winner is : " + winner;
-        setDuration((new Date()) - startTime)/1000;
         
         //setWinner(winner);
 
@@ -107,8 +151,11 @@ function Game() {
           </div>
           <div className="game-info">
             <div>{status}</div>
-            {isWinner && <WriteRecord isWinner = {isWinner} setWinner ={setWinner}/>} 
+            {isWinner && <WriteRecord isWinner = {isWinner} setWinner = {setWinner} handleCloseWinner = {handleCloseWinner} newGame = {newGame} open={open} setOpen={setOpen} />} 
             <ol>{moves}</ol>
+          </div>
+          <div className="records">
+      <ol><button onClick={getRecords}>Leaderboards</button>{records}</ol>
           </div>
           
         </div>
