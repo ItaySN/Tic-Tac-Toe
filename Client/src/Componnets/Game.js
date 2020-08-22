@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Board from './Board';
-import './index.css';
+import './game.css';
 import ReactDOM from 'react-dom';
 import WriteRecord from  './modal.js';
 import axios from 'axios';
-import './records.css'
+import { FaTrophy } from 'react-icons/fa';
 
 function Game() {
     const [state, setState] = useState({
@@ -44,15 +44,17 @@ function Game() {
         newGame();
       }
 
-      const getRecords = async () =>{
-        let data = await axios.get('/api/v1/records');
-        let leaderboards = data.data.map((record,i) => {
-          return (<li>
-            <span>i</span>
-            <span>Name : {record.name}   </span>
-            <span>Duaration : {record.duration}  </span>
-            <span>Date: {record.date}</span> 
-          </li>)
+      const getRecords = async (displayRecords) =>{
+          let data = await axios.get('/api/v1/records');
+          let leaderboards = data.data.map((record,i) => {
+          return (
+            <div className="records">
+            <li>
+            <span className="name-span">Name: <span className="display-rec"> {record.name}</span></span>
+            <span className="duration-span">Duaration:<span className="display-rec"> {record.duration}</span></span>  
+            <span className="date-span">Date:<span className="display-rec"> {record.date}</span></span>   
+          </li>
+          </div>)
         })
         setRecords(leaderboards);
         
@@ -110,8 +112,8 @@ function Game() {
         'Go to move #' + move :
         'Go to game start';
       return (
-        <li key={move}>
-          <button onClick={() =>{ jumpTo(move); setWinner(false)}}>{desc}</button>
+        <li className="moves-li" key={move}>
+          <button className="moves-button" onClick={() =>{ jumpTo(move); setWinner(false)}}>{desc}</button>
         </li>
       );
     });
@@ -150,12 +152,12 @@ function Game() {
             />
           </div>
           <div className="game-info">
-            <div>{status}</div>
+            <div className="status">{status}</div>
             {isWinner && <WriteRecord isWinner = {isWinner} setWinner = {setWinner} handleCloseWinner = {handleCloseWinner} newGame = {newGame} open={open} setOpen={setOpen} />} 
-            <ol>{moves}</ol>
+            <ol className="moves">{moves}</ol>
           </div>
           <div className="records">
-      <ol><button onClick={getRecords}>Leaderboards</button>{records}</ol>
+          <ol><button id="button-leaderboard" onClick={getRecords()}>The Leaderboard <FaTrophy/></button>{records}</ol>
           </div>
           
         </div>
